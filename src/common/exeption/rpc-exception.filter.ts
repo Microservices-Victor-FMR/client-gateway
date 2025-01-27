@@ -1,47 +1,42 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, HttpException } from '@nestjs/common';
+import {ArgumentsHost,Catch,ExceptionFilter,HttpException, HttpStatus} from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-@Catch(RpcException)
+@Catch(RpcException) 
 export class RpcCustomExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
 
+    const context = host.switchToHttp();
     const rpcError = exception.getError();
+    const response = context.getResponse();
 
 
+          if(typeof rpcError !== 'object'){
+            response.status(500).json({
+              message: 'Error inesperado por parte del servidor',
+              status : HttpStatus.INTERNAL_SERVER_ERROR
+            })
+            throw new Error("rpcError debe ser de tipo objeto")
+          }
 
-    
-
-    if (typeof rpcError !== 'object' || rpcError === null) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Internal server error', 
-      });
-      return;
-    }
-
-   
-    //Verificar que el objeto tenga las propiedades necesarias
-    if (!('statusCode' in rpcError) && !('message' in rpcError)&& !('status' in rpcError)) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Error desconocido', 
-        // Mensaje más específico
-      });
-      console.log('Mala estructura de message o statusCode')
-      return; 
-    }
+          
+          if(!('statusCode'in rpcError || ('message' in rpcError) || ('status' in rpcError))){
+            response.status(500).json({
+              message: 'Error inesperado por parte del servidor',
+              status : HttpStatus.INTERNAL_SERVER_ERROR
+            })
+            throw new Error("rpcError no contiene la propiedades adecuadas")
+          }
 
 
-    const statusCode = rpcError['statusCode'] || HttpStatus.INTERNAL_SERVER_ERROR;
-    const message = rpcError['message'] || 'Internal server error';
+          const status = rpcError['statusCode'] || HttpStatus.INTERNAL_SERVER_ERROR
+          const message = rpcError['message']   || "Internal Server Error"
 
-    response.status(statusCode).json({
-      statusCode,
-      message,
-    });
+
+          response.status(status).json({
+            status: status,
+            message: message
+
+
+          })
   }
 }
-
-
