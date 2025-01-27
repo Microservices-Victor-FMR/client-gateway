@@ -8,10 +8,8 @@ import {
   Inject,
   Query,
   Body,
-
 } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { CLIENT_NAME } from 'env.config';
 import { firstValueFrom } from 'rxjs';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -20,15 +18,14 @@ import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 export class ProductsController {
-  constructor(@Inject(CLIENT_NAME) private readonly products: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly  nats_product: ClientProxy) {}
 
   @Post()
   async createProduct(@Body() createProductDto: CreateProductDto) {
     try {
       const result = await firstValueFrom(
-        this.products.send({ cmd: 'create_product' }, createProductDto),
+        this.nats_product.send({ cmd: 'create_product' }, createProductDto),
       );
-
       return result;
     } catch (error) {
       throw new RpcException(error);
@@ -39,7 +36,7 @@ export class ProductsController {
   async findAllProducts(@Query() paginationDto: PaginationDto) {
     try {
       const result = await firstValueFrom(
-        this.products.send({ cmd: 'find_all_products' }, paginationDto),
+        this.nats_product.send({ cmd: 'find_all_products' }, paginationDto),
       );
       return result;
     } catch (error) {
@@ -51,37 +48,31 @@ export class ProductsController {
   async findProductById(@Param() params: FindOneParams) {
     try {
       const result = await firstValueFrom(
-        this.products.send({ cmd: 'find_product_by_id' }, { id: params.id }),
+        this.nats_product.send({ cmd: 'find_product_by_id' }, { id: params.id }),
       );
       return result;
     } catch (error) {
-   
       throw new RpcException(error);
     }
   }
 
   @Patch(':id')
-  async updateProduct(@Param() params:FindOneParams ,@Body()updateProductDto : UpdateProductDto,) {
+  async updateProduct(@Param() params: FindOneParams, @Body() updateProductDto: UpdateProductDto) {
     try {
-      
       const result = await firstValueFrom(
-        this.products.send({ cmd: 'update_product' }, { params, updateProductDto}), // Asegúrate de enviar el ID correctamente
+        this.nats_product.send({ cmd: 'update_product' }, { params, updateProductDto }),
       );
-      
       return result;
     } catch (error) {
-     
       throw new RpcException(error);
     }
-
-  
   }
 
   @Delete(':id')
   async deleteProduct(@Param() params: FindOneParams) {
     try {
       const result = await firstValueFrom(
-        this.products.send({cmd:'delete_product'}, params),
+        this.nats_product.send({ cmd: 'delete_product' }, params),
       );
       return result;
     } catch (error) {
