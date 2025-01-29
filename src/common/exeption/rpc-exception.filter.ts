@@ -5,38 +5,38 @@ import { RpcException } from '@nestjs/microservices';
 export class RpcCustomExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
 
-    const context = host.switchToHttp();
-    const rpcError = exception.getError();
-    const response = context.getResponse();
+            const context = host.switchToHttp();
+            const rpcError = exception.getError();
+            const response = context.getResponse();
 
-
-          if(typeof rpcError !== 'object'){
+  
+          if (!rpcError || typeof rpcError !== 'object') {
             response.status(500).json({
               message: 'Error inesperado por parte del servidor',
-              status : HttpStatus.INTERNAL_SERVER_ERROR
-            })
-            throw new Error("rpcError debe ser de tipo objeto")
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+            });
+            return;
           }
-
           
-          if(!('statusCode'in rpcError || ('message' in rpcError) || ('status' in rpcError))){
+
+            const hasRequiredProperties ='statusCode'in rpcError || 'message' in rpcError  || 'status' in rpcError
+
+          if(!hasRequiredProperties){
             response.status(500).json({
               message: 'Error inesperado por parte del servidor',
               status : HttpStatus.INTERNAL_SERVER_ERROR
             })
-            throw new Error("rpcError no contiene la propiedades adecuadas")
+            return
           }
 
 
-          const status = rpcError['statusCode'] || HttpStatus.INTERNAL_SERVER_ERROR
-          const message = rpcError['message']   || "Internal Server Error"
+            const status = rpcError['statusCode'] || rpcError['status'] || HttpStatus.INTERNAL_SERVER_ERROR
+            const message = rpcError['message']   || "Internal Server Error"
 
 
-          response.status(status).json({
-            status: status,
-            message: message
-
-
-          })
+            response.status(status).json({
+            status,
+            message
+            })
   }
 }
