@@ -32,7 +32,14 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
 
             const status = rpcError['statusCode'] || rpcError['status'] || HttpStatus.INTERNAL_SERVER_ERROR
             const message = rpcError['message']   || "Internal Server Error"
-
+            
+          if(typeof status!=='number'){
+            response.status(500).json({
+                message: 'Error inesperado por parte del servidor',
+                status: HttpStatus.INTERNAL_SERVER_ERROR
+            })
+            return
+            }
 
             response.status(status).json({
             status,
