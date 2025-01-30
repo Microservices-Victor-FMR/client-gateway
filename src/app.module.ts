@@ -5,6 +5,7 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { EnvironmentConfigModule } from './.env/environment.module';
 import { NatsModule } from './transports/nats.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { NatsModule } from './transports/nats.module';
     ProductsModule,
     OrdersModule,
     NatsModule,
+    InventoryModule,
   ],
 })
 export class AppModule {}
