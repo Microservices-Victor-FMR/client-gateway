@@ -6,6 +6,7 @@ import { OrdersModule } from './orders/orders.module';
 import { EnvironmentConfigModule } from './.env/environment.module';
 import { NatsModule } from './transports/nats.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { ShippingAddressModule } from './shipping-address/shipping-address.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { InventoryModule } from './inventory/inventory.module';
     OrdersModule,
     NatsModule,
     InventoryModule,
+    ShippingAddressModule,
   ],
 })
 export class AppModule {}
