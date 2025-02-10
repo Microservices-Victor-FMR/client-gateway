@@ -7,6 +7,9 @@ import { EnvironmentConfigModule } from './.env/environment.module';
 import { NatsModule } from './transports/nats.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ShippingAddressModule } from './shipping-address/shipping-address.module';
+import { AuthenticationModule } from './authentication/authentication.module';
+import { LocalStrategy } from './security/local.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -15,12 +18,16 @@ import { ShippingAddressModule } from './shipping-address/shipping-address.modul
       isGlobal: true,
       validationSchema: envSchema,
     }),
+    PassportModule,
+  
     EnvironmentConfigModule, 
     ProductsModule,
     OrdersModule,
     NatsModule,
     InventoryModule,
     ShippingAddressModule,
+    AuthenticationModule,
   ],
+  providers: [LocalStrategy],
 })
 export class AppModule {}
