@@ -19,7 +19,6 @@ import { PassportModule } from '@nestjs/passport';
       validationSchema: envSchema,
     }),
     PassportModule,
-  
     EnvironmentConfigModule, 
     ProductsModule,
     OrdersModule,
