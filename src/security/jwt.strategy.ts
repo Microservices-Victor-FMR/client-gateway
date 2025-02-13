@@ -1,5 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JsonWebTokenError } from '@nestjs/jwt';
+import { RpcException } from '@nestjs/microservices';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
@@ -20,11 +22,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       if (!payload || !payload.sub || !payload.email || !payload.role || !payload.username) {
   
-        this.logger.warn('Invalid token o expirado');
         throw new UnauthorizedException('Invalid token o expirado');
       }
       
-      this.logger.debug(payload.sub,payload.username, payload.role);
       return {
         userId: payload.sub,
         username: payload.username,
@@ -32,8 +32,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         role: payload.role,
       };
     } catch (error) {
-      this.logger.error('JWT validation failed', error.stack);
-      throw error;
+      if(error instanceof JsonWebTokenError){
+        throw new RpcException(error)
+     }
+     throw error
     }
   }
 }
