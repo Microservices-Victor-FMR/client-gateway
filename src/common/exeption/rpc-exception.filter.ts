@@ -1,7 +1,7 @@
 import {ArgumentsHost,Catch,ExceptionFilter,HttpException, HttpStatus} from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-@Catch(RpcException) 
+@Catch(RpcException, HttpException) 
 export class RpcCustomExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
 
@@ -9,7 +9,16 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
             const rpcError = exception.getError();
             const response = context.getResponse();
 
-  
+            if(exception instanceof HttpException){
+              const status = exception.getStatus();
+              const message = exception.getResponse();
+              return response.status(status).json({
+                status: status,
+                message: message
+              })
+            }
+
+
           if (!rpcError || typeof rpcError !== 'object') {
             response.status(500).json({
               message: 'Error inesperado por parte del servidor',
