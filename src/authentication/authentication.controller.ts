@@ -53,9 +53,9 @@ export class AuthenticationController {
     }
   }
 
-  @Get('verify-account')
+  @Get('verify-account/:token')
   @HttpCode(200)
-  async veriryAccount(@Query('token') token: string) {
+  async veriryAccount(@Param('token') token: string) {
     try {
       const result = await firstValueFrom(this.nats_authentication.send('verify-account', token));
       const data = result['message'];
