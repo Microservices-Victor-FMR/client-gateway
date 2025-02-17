@@ -66,11 +66,11 @@ export class AuthenticationController {
     }
   }
 
-  @Get('resend-verification-token')
+  @Post('resend-verification')
   @HttpCode(200)
-  async resendVerificationToken(@Query('email') email: string) {
+  async resendVerificationToken(@Body('email') email: string) {
     try {
-      const result = await firstValueFrom(this.nats_authentication.send('resend-verification-token', email));
+      const result = await firstValueFrom(this.nats_authentication.send('resend-verification', email));
       return result;
     } catch (error) {
       throw new RpcException(error);
