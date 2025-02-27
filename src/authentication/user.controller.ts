@@ -1,6 +1,7 @@
-import { Controller, Get, Inject, Post } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { FindByIdDto } from './dto/findById-user.dto';
 
 @Controller('profile')
 export class UserController {
@@ -10,6 +11,16 @@ export class UserController {
   async getProfile() {
     try {
       const result = await firstValueFrom(this.nats_profile.send('findAllUser', {}));
+      return result;
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  @Get(':id')
+  async getProfileId(@Param() id: FindByIdDto) {
+    try {
+      const result = await firstValueFrom(this.nats_profile.send('findOneUser', id));
       return result;
     } catch (error) {
       throw new RpcException(error);
